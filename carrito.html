@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito - AutoVenta</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+   
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">AutoVenta</div>
+            <ul class="nav-menu">
+                <li><a href="../index.html">Inicio</a></li>
+                <li><a href="catalogo.html">Catálogo</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+                <li><a href="carrito.html">Carrito (<span data-carrito-count>0</span>)</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="carrito-section">
+        <div class="container">
+            <h2>Tu Carrito de Compras</h2>
+            
+            <div class="carrito-container">
+                <div class="carrito-items" id="items-carrito">
+                    <div class="carrito-vacio">
+                        <p>Tu carrito está vacío</p>
+                        <p style="margin-top: 1rem;">
+                            <a href="catalogo.html" class="btn btn-primary">Ir al Catálogo</a>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="carrito-resumen">
+                    <div class="resumen-titulo">Resumen</div>
+                    <div class="resumen-fila">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">$0.00</span>
+                    </div>
+                    <div class="resumen-fila">
+                        <span>Impuestos (16%):</span>
+                        <span id="impuestos">$0.00</span>
+                    </div>
+                    <div class="resumen-fila total">
+                        <span class="resumen-total">Total:</span>
+                        <span class="resumen-total" id="total">$0.00</span>
+                    </div>
+                    <button class="btn-comprar" onclick="finalizarCompra()" id="btn-comprar" style="display: none;">
+                        Finalizar Compra
+                    </button>
+                    <button class="btn-continuar" onclick="window.location.href='catalogo.html'">
+                        Continuar Comprando
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 AutoVenta. Todos los derechos reservados.</p>
+            <div class="footer-links">
+                <a href="#">Privacidad</a>
+                <a href="#">Términos</a>
+                <a href="#">Contacto</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        function mostrarCarrito() {
+            const container = document.getElementById('items-carrito');
+            const btnComprar = document.getElementById('btn-comprar');
+
+            if (carrito.length === 0) {
+                container.innerHTML = `
+                    <div class="carrito-vacio">
+                        <p>Tu carrito está vacío</p>
+                        <p style="margin-top: 1rem;">
+                            <a href="catalogo.html" class="btn btn-primary">Ir al Catálogo</a>
+                        </p>
+                    </div>
+                `;
+                btnComprar.style.display = 'none';
+                actualizarTotales();
+                return;
+            }
+
+            btnComprar.style.display = 'block';
+            container.innerHTML = '';
+
+            carrito.forEach(item => {
+                const subtotal = item.precio * item.cantidad;
+                const row = document.createElement('div');
+                row.className = 'item-carrito';
+                row.innerHTML = `
+                    <div class="item-imagen">
+                        <img src="${item.imagen}" alt="${item.nombre}">
+                    </div>
+                    <div class="item-info">
+                        <h4>${item.nombre}</h4>
+                        <p>${item.detalles}</p>
+                        <p class="item-precio">$${item.precio.toLocaleString()}</p>
+                        <p class="item-subtotal">Subtotal: $${subtotal.toLocaleString()}</p>
+                    </div>
+                    <div class="item-controles">
+                        <div class="cantidad-control">
+                            <button onclick="restarCantidad(${item.id})">-</button>
+                            <input type="text" value="${item.cantidad}" readonly>
+                            <button onclick="sumarCantidad(${item.id})">+</button>
+                        </div>
+                        <button class="btn-eliminar" onclick="quitarDelCarrito(${item.id})">X</button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+
+            actualizarTotales();
+        }
+
+        function sumarCantidad(id) {
+            const item = carrito.find(i => i.id === id);
+            if (item) {
+                item.cantidad++;
+                guardarCarrito();
+                mostrarCarrito();
+                actualizarBadgeCarrito();
+            }
+        }
+
+        function restarCantidad(id) {
+            const item = carrito.find(i => i.id === id);
+            if (item && item.cantidad > 1) {
+                item.cantidad--;
+                guardarCarrito();
+                mostrarCarrito();
+                actualizarBadgeCarrito();
+            }
+        }
+
+        function quitarDelCarrito(id) {
+            carrito = carrito.filter(item => item.id !== id);
+            guardarCarrito();
+            mostrarCarrito();
+            actualizarBadgeCarrito();
+        }
+
+        function actualizarTotales() {
+            const subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+            const impuestos = subtotal * 0.16;
+            const total = subtotal + impuestos;
+
+            document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+            document.getElementById('impuestos').textContent = '$' + impuestos.toFixed(2);
+            document.getElementById('total').textContent = '$' + total.toFixed(2);
+        }
+
+        function finalizarCompra() {
+            if (carrito.length === 0) {
+                alert('Tu carrito está vacío');
+                return;
+            }
+
+            const subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+            const impuestos = subtotal * 0.16;
+            const total = subtotal + impuestos;
+
+            alert('¡Compra realizada!\n\nTotal: $' + total.toFixed(2) + '\n\nGracias por tu compra');
+            
+            carrito = [];
+            guardarCarrito();
+            actualizarBadgeCarrito();
+            mostrarCarrito();
+        }
+
+        window.addEventListener('load', mostrarCarrito);
+    </script>
+</body>
+</html>
