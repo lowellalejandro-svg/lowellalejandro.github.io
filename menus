@@ -1,0 +1,68 @@
+  // DATOS DE AUTOS (CON IMÁGENES LOCALES)
+const autos = [
+    { id: 1, nombre: "Toyota Corolla 2023", precio: 18500, imagen: "img/auto 1-2.webp ", descripcion: "Sedán económico y confiable", detalles: "Motor 1.8L, 140 HP, Automático" },
+    { id: 2, nombre: "Honda Civic 2023", precio: 22000, imagen: "img/honda civic.jpg", descripcion: "Deportivo y eficiente", detalles: "Motor 1.5L Turbo, 174 HP" },
+    { id: 3, nombre: "Mazda CX-5 2023", precio: 26000, imagen: "img/mazda cx-5.jpg", descripcion: "SUV con tracción integral", detalles: "Motor 2.5L, 187 HP, AWD" },
+    { id: 4, nombre: "Hyundai Elantra 2023", precio: 17800, imagen: "img/hyundai eltran.jpg", descripcion: "Sedán compacto y moderno", detalles: "Motor 2.0L, 147 HP" },
+    { id: 5, nombre: "Ford Mustang 2023", precio: 35000, imagen: "img/ford mustang.jpg", descripcion: "Deportivo clásico con potencia", detalles: "Motor 3.7L V6, 290 HP" },
+    { id: 6, nombre: "Chevrolet Cruze 2023", precio: 19500, imagen: "img/chevrolet cruze.jpg", descripcion: "Sedán versátil y espacioso", detalles: "Motor 1.4L Turbo, 153 HP" },
+    { id: 7, nombre: "Nissan Altima 2023", precio: 24000, imagen: "img/nissan altima.jpg", descripcion: "Sedán premium con confort", detalles: "Motor 2.5L, 182 HP" },
+    { id: 8, nombre: "Volkswagen Golf 2023", precio: 23500, imagen: "img/vilkswagen.jpg", descripcion: "Compacto alemán de calidad", detalles: "Motor 1.4L TSI, 140 HP" }
+];
+
+// Rest of the code...
+// CARRITO
+let carrito = [];
+
+// CARGAR CARRITO DEL STORAGE
+function cargarCarritoDelStorage() {
+    const carritoGuardado = localStorage.getItem('carrito');
+    if (carritoGuardado) {
+        carrito = JSON.parse(carritoGuardado);
+    }
+}
+
+// GUARDAR CARRITO EN STORAGE
+function guardarCarrito() {
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+}
+
+// AGREGAR AUTO AL CARRITO
+function agregarAlCarrito(idAuto) {
+    const auto = autos.find(a => a.id === idAuto);
+    if (!auto) return;
+
+    const itemExistente = carrito.find(item => item.id === idAuto);
+    
+    if (itemExistente) {
+        itemExistente.cantidad++;
+    } else {
+        carrito.push({
+            id: auto.id,
+            nombre: auto.nombre,
+            precio: auto.precio,
+            imagen: auto.imagen,
+            detalles: auto.detalles,
+            cantidad: 1
+        });
+    }
+    
+    guardarCarrito();
+    actualizarBadgeCarrito();
+    alert(auto.nombre + " agregado al carrito");
+}
+
+// ACTUALIZAR BADGE DEL CARRITO
+function actualizarBadgeCarrito() {
+    const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+    const badges = document.querySelectorAll('[data-carrito-count]');
+    badges.forEach(badge => {
+        badge.textContent = totalItems > 0 ? totalItems : '0';
+    });
+}
+
+// INICIALIZAR
+document.addEventListener('DOMContentLoaded', function() {
+    cargarCarritoDelStorage();
+    actualizarBadgeCarrito();
+});
